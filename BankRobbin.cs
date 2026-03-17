@@ -1,22 +1,53 @@
 using System;
-using System.Collections.Generic;
 
-public class program
+public class Program
 {
-  public static void Main(String[] args)
-  {
-    int[] numLocks = new int[(int) System.ReadLine()];
-    int[] numKeys = new int[(int) System.ReadLine()];
-    String Lock = System.ReadLine();
-    String[][] possible = new String[numLocks][numKeys];
-    for(int i = 0; i < numLocks; i++)
+    private static int HexVal(char c)
     {
-      for(int j = 0; j < numKeys; j++)
-      {
-      possible[i][j] = System.ReadLine();
-      }
+        if (c >= '0' && c <= '9') return c - '0';
+        // input guaranteed uppercase A-F
+        return 10 + (c - 'A');
     }
-    
-  }
 
+    public static void Main()
+    {
+        string? line = Console.ReadLine();
+        if (line == null) return;
+
+        int n = int.Parse(line.Trim());
+
+        for (int caseIndex = 0; caseIndex < n; caseIndex++)
+        {
+            int k = int.Parse(Console.ReadLine()!.Trim());
+            string lockHex = Console.ReadLine()!.Trim(); // exactly 6 hex digits
+
+            string? foundKey = null;
+
+            for (int i = 0; i < k; i++)
+            {
+                string keyHex = Console.ReadLine()!.Trim(); // exactly 6 hex digits
+
+                // If we already found a key, still need to consume input but can skip checking.
+                if (foundKey != null) continue;
+
+                bool ok = true;
+                for (int pos = 0; pos < 6; pos++)
+                {
+                    int sum = HexVal(lockHex[pos]) + HexVal(keyHex[pos]);
+                    if (sum != 15) // 0xF
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (ok) foundKey = keyHex;
+            }
+
+            if (foundKey != null)
+                Console.WriteLine($"UNLOCKED BY KEY {foundKey}");
+            else
+                Console.WriteLine("NOT UNLOCKED");
+        }
+    }
 }
