@@ -125,3 +125,62 @@ public class Program
         return s;
     }
 }
+
+class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TPriority>
+{
+    private List<(TElement element, TPriority priority)> heap = new();
+
+    public int Count => heap.Count;
+
+    public void Enqueue(TElement element, TPriority priority)
+    {
+        heap.Add((element, priority));
+        int i = heap.Count - 1;
+
+        while (i > 0)
+        {
+            int parent = (i - 1) / 2;
+            if (heap[i].priority.CompareTo(heap[parent].priority) >= 0) break;
+
+            (heap[i], heap[parent]) = (heap[parent], heap[i]);
+            i = parent;
+        }
+    }
+
+    public bool TryDequeue(out TElement element, out TPriority priority)
+    {
+        if (heap.Count == 0)
+        {
+            element = default!;
+            priority = default!;
+            return false;
+        }
+
+        (element, priority) = heap[0];
+        heap[0] = heap[^1];
+        heap.RemoveAt(heap.Count - 1);
+
+        int i = 0;
+        while (true)
+        {
+            int left = 2 * i + 1;
+            int right = 2 * i + 2;
+            int smallest = i;
+
+            if (left < heap.Count &&
+                heap[left].priority.CompareTo(heap[smallest].priority) < 0)
+                smallest = left;
+
+            if (right < heap.Count &&
+                heap[right].priority.CompareTo(heap[smallest].priority) < 0)
+                smallest = right;
+
+            if (smallest == i) break;
+
+            (heap[i], heap[smallest]) = (heap[smallest], heap[i]);
+            i = smallest;
+        }
+
+        return true;
+    }
+}
